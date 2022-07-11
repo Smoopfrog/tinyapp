@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Smoopfrog/tinyapp/issues"
   },
-  "homepage": "https://github.com/Smoopfrog/tinyapp#readme"
+  "homepage": "https://github.com/Smoopfrog/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
 }
