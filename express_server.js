@@ -57,6 +57,12 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+// Edit URL
+app.post('/urls/:id/edit', (req, res) => {
+  urlDatabase[req.params.id] = req.body.newURL;
+  res.redirect('/urls');
+});
+
 // URL json
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
