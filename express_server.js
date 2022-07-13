@@ -21,6 +21,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 // Homepage
 app.get("/", (req, res) => {
   res.redirect("/urls");
@@ -42,6 +55,28 @@ app.post('/urls', (req, res) => {
   const tinyUrl = generateRandomString();
   urlDatabase[tinyUrl] = req.body.longURL;
   res.redirect('urls/' + tinyUrl);
+});
+
+// Register page
+app.get('/register', (req, res) => {
+  const templateVars = { username: req.cookies['username'], urls: urlDatabase };
+  res.render("urls_register", templateVars);
+});
+
+app.post('/register', (req, res) => {
+  res.redirect('/');
+})
+
+// Login
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('urls');
+});
+
+// Logout
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('urls');
 });
 
 // Add URL
@@ -66,19 +101,6 @@ app.post('/urls/:id/edit', (req, res) => {
   urlDatabase[req.params.id] = req.body.newURL;
   res.redirect('/urls');
 });
-
-
-// Login
-app.post('/login', (req, res) => { 
-  res.cookie('username', req.body.username);
-  res.redirect('urls');
-})
-
-// Logout
-app.post('/logout', (req, res) => {
-  res.clearCookie('username')
-  res.redirect('urls')
-})
 
 // URL json
 app.get("/urls.json", (req, res) => {
