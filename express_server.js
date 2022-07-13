@@ -1,9 +1,11 @@
 const express = require("express");
 const app = express();
+const cookies = require('cookie-parser');
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(cookies());
 
 const generateRandomString = () => {
   let tinyUrl = "";
@@ -19,10 +21,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Homepage
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/urls");
 });
 
+//
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
@@ -30,7 +34,7 @@ app.get("/u/:id", (req, res) => {
 
 // URLs
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { username: req.cookies['username'], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -47,7 +51,7 @@ app.get("/urls/new", (req, res) => {
 
 //
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars = { username: req.cookies['username'], id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
@@ -63,21 +67,23 @@ app.post('/urls/:id/edit', (req, res) => {
   res.redirect('/urls');
 });
 
-// URL json
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
 
 // Login
-app.post('/login', (req, res) => {
+app.post('/login', (req, res) => { 
   res.cookie('username', req.body.username);
   res.redirect('urls');
 })
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+// Logout
+app.post('/logout', (req, res) => {
+  res.clearCookie('username')
+  res.redirect('urls')
+})
 
+// URL json
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
