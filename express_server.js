@@ -68,6 +68,12 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// Login
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('urls');
+})
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
