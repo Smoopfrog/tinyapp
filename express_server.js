@@ -26,6 +26,14 @@ const checkEmailIsRegistered = (email, database) => {
   return false;
 };
 
+const getUserIdFromEmail = function(email, database) {
+  for (const user in database) {
+    if (database[user].email === email) {
+      return database[user].id;
+    }
+  }
+};
+
 // Sample Databases
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -36,7 +44,7 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: "password",
   },
   user2RandomID: {
     id: "user2RandomID",
@@ -85,13 +93,22 @@ app.post('/register', (req, res) => {
 // Login
 app.get('/login', (req, res) => {
   const templateVars = { user: users[req.cookies.user_id]};
-  
   res.render('urls_login', templateVars);
 });
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('urls');
+  const enteredEmail = req.body.email;
+  const enteredPassword = req.body.password;
+  const user = getUserIdFromEmail(enteredEmail, users);
+
+  if (!checkEmailIsRegistered(enteredEmail, users)) {
+    res.status(403).send("Email is not registered.");
+  } else if (enteredPassword !== users[user].password) {
+    res.status(403).send("Password is incorrect.");
+  } else {
+    res.cookie('user_id', user);
+    res.redirect('urls');
+  }
 });
 
 // Logout
