@@ -30,22 +30,25 @@
           </tr>
         </thead>
         <tbody>
-          <% for (let id in urls) { %>
-            <tr>
-              <td><%= id %></td>
-              <td><%= urls[id] %></td>
-              <td>
-                <form method="GET" action="/urls/<%= id %>/">
-                  <button>edit</button>
-                </form>
-              </td>
-              <td>
-                <form method="POST" action="/urls/<%= id %>/delete">
-                  <button>Delete</button>
-                </form>
-              </td>
-
-            </tr>
+          <% if (!user) { %>
+            <div>Please login or register to view URLs</div>
+          <%} else { %>
+            <% for (let id in urls) { %>
+              <tr>
+                <td><%= id %></td>
+                <td><%= urls[id].longURL %></td>
+                <td>
+                  <form method="GET" action="/urls/<%= id %>/">
+                    <button>edit</button>
+                  </form>
+                </td>
+                <td>
+                  <form method="POST" action="/urls/<%= id %>/delete">
+                    <button>Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% } %>
           <% } %>
         </tbody>
       </table>
