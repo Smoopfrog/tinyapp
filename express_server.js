@@ -1,7 +1,11 @@
 const express = require("express");
 const app = express();
 const cookies = require('cookie-parser');
+const bcrypt = require("bcryptjs")
 const PORT = 8080; // default port 8080
+
+// Password hash
+const salt = bcrypt.genSaltSync(10);
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -87,7 +91,7 @@ app.get("/u/:id", (req, res) => {
 // Register page
 app.get('/register', (req, res) => {
   const templateVars = { user: users[req.cookies.user_id]};
-  if (users[req.cookies.user_id] === undefined) {
+  if (users[req.cookies.user_id]) {
     res.redirect('/urls')
   } else {
     res.render("urls_register", templateVars);
@@ -107,7 +111,7 @@ app.post('/register', (req, res) => {
     users[randomID] = {
       id: randomID,
       email: enteredEmail,
-      password: enteredPassword
+      password: bcrypt.hashSync(enteredPassword, salt)
     };
     res.cookie('user_id', randomID);
     res.redirect('/');
@@ -128,10 +132,9 @@ app.post('/login', (req, res) => {
   const enteredEmail = req.body.email;
   const enteredPassword = req.body.password;
   const user = getUserIdFromEmail(enteredEmail, users);
-
   if (!checkEmailIsRegistered(enteredEmail, users)) {
     res.status(403).send("Email is not registered.");
-  } else if (enteredPassword !== users[user].password) {
+  } else if (!bcrypt.compareSync(enteredPassword, users[user].password)) {
     res.status(403).send("Password is incorrect.");
   } else {
     res.cookie('user_id', user);
@@ -159,7 +162,6 @@ app.get("/urls", (req, res) => {
       urls: urlsForUser(users[req.cookies.user_id].id, urlDatabase) 
     }
   }
-  console.log(users[req.cookies.user_id]);
   res.render("urls_index", templateVars);
 });
 
