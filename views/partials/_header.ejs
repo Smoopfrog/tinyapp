@@ -21,9 +21,11 @@
     </div>
     <div>
       <% if(user === undefined) { %>
-        <form method="POST" action="/login">
-          <input type="text" name="email" placeholder="email">
+        <form method="GET" action="/login">
          <button type="submit">Login</button>
+        </form>
+        <form method="GET" action="/register">
+         <button type="submit">Register</button>
         </form>
       <% } else { %>
         <form method="POST" action="/logout">

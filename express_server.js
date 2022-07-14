@@ -26,7 +26,7 @@ const checkEmailIsRegistered = (email, database) => {
   return false;
 };
 
-
+// Sample Databases
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -56,21 +56,9 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-// URLs
-app.get("/urls", (req, res) => {
-  const templateVars = { user: users[req.cookies.user_id], urls: urlDatabase };
-  res.render("urls_index", templateVars);
-});
-
-app.post('/urls', (req, res) => {
-  const tinyUrl = generateRandomString();
-  urlDatabase[tinyUrl] = req.body.longURL;
-  res.redirect('urls/' + tinyUrl);
-});
-
 // Register page
 app.get('/register', (req, res) => {
-  const templateVars = { user: users[req.cookies.user_id], urls: urlDatabase };
+  const templateVars = { user: users[req.cookies.user_id]};
   res.render("urls_register", templateVars);
 });
 
@@ -95,6 +83,12 @@ app.post('/register', (req, res) => {
 });
 
 // Login
+app.get('/login', (req, res) => {
+  const templateVars = { user: users[req.cookies.user_id]};
+  
+  res.render('urls_login', templateVars);
+});
+
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect('urls');
@@ -104,6 +98,18 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
   res.redirect('urls');
+});
+
+// URLs
+app.get("/urls", (req, res) => {
+  const templateVars = { user: users[req.cookies.user_id], urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+
+app.post('/urls', (req, res) => {
+  const tinyUrl = generateRandomString();
+  urlDatabase[tinyUrl] = req.body.longURL;
+  res.redirect('urls/' + tinyUrl);
 });
 
 // Add URL
