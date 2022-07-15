@@ -136,7 +136,7 @@ app.post('/urls', (req, res) => {
   }
 
   urlDatabase[tinyUrl] = {
-    longURL:req.body.longURL,
+    longURL: req.body.longURL,
     userID: users[req.session.userId].id
   };
   res.redirect('urls/' + tinyUrl);
@@ -152,8 +152,19 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-//
+// Url edit page
 app.get("/urls/:id", (req, res) => {
+  
+  // Check if signed in
+  if (!users[req.session.userId]) {
+    return  res.status(403).send("Please log in to use this feature.");
+  }
+
+  // Check if the current userID matches the URL userID
+  if(urlDatabase[req.params.id].userID !== users[req.session.userId].id) {
+    return  res.status(403).send("Not authorized with this account.");
+  }
+
   const templateVars = { user: users[req.session.userId], id: req.params.id, longURL: urlDatabase[req.params.id].longURL };
   res.render("urls_show", templateVars);
 });
