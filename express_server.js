@@ -54,10 +54,12 @@ app.post('/register', (req, res) => {
   const enteredEmail = req.body.email;
   const enteredPassword = req.body.password;
 
+  // Error if input fields are blank
   if (!enteredEmail || !enteredPassword) {
     return res.status(400).send("Please include an email and password.");
   }
   
+  // Error if email is already registered
   if (checkEmailIsRegistered(enteredEmail, users)) {
     return res.status(400).send("Email already registered.");
   }
@@ -110,6 +112,7 @@ app.post('/logout', (req, res) => {
 // URLs
 app.get("/urls", (req, res) => {
   let templateVars = {};
+
   if (!users[req.session.userId]) {
     templateVars = {
       user: users[req.session.userId],
@@ -121,6 +124,7 @@ app.get("/urls", (req, res) => {
       urls: urlsForUser(users[req.session.userId].id, urlDatabase)
     };
   }
+
   res.render("urls_index", templateVars);
 });
 
@@ -138,7 +142,7 @@ app.post('/urls', (req, res) => {
   res.redirect('urls/' + tinyUrl);
 });
 
-// Add URL
+// Add new URL
 app.get("/urls/new", (req, res) => {
   const templateVars = { user: users[req.session.userId], urls: urlDatabase };
   res.render("urls_new", templateVars);
@@ -155,6 +159,7 @@ app.post('/urls/:id/delete', (req, res) => {
   if (!users[req.session.userId]) {
     return res.status(403).send("Please log in to use this feature");
   }
+
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
 });
@@ -170,11 +175,6 @@ app.post('/urls/:id/edit', (req, res) => {
     userID: users[req.session.userId].id
   };
   res.redirect('/urls');
-});
-
-// URL json
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
 });
 
 app.listen(PORT, () => {
