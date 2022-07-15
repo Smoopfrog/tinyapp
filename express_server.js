@@ -29,8 +29,13 @@ app.get("/", (req, res) => {
 
 // Redirects to the longURL associated with the tinyURL
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id].longURL;
+  
+  // Check if :id exists
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send('Short url not found.');
+  }
 
+  const longURL = urlDatabase[req.params.id].longURL;
   if (!longURL) {
     return res.status(404).send('URL not found.');
   }
@@ -155,14 +160,19 @@ app.get("/urls/new", (req, res) => {
 // Url edit page
 app.get("/urls/:id", (req, res) => {
   
+  // Check if :id exists
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send('Short url not found.');
+  }
+
   // Check if signed in
   if (!users[req.session.userId]) {
-    return  res.status(403).send("Please log in to use this feature.");
+    return res.status(403).send("Please log in to use this feature.");
   }
 
   // Check if the current userID matches the URL userID
   if(urlDatabase[req.params.id].userID !== users[req.session.userId].id) {
-    return  res.status(403).send("Not authorized with this account.");
+    return res.status(403).send("Not authorized with this account.");
   }
 
   const templateVars = { user: users[req.session.userId], id: req.params.id, longURL: urlDatabase[req.params.id].longURL };
