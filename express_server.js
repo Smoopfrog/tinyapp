@@ -144,6 +144,10 @@ app.post('/urls', (req, res) => {
 
 // Add new URL
 app.get("/urls/new", (req, res) => {
+  if (!users[req.session.userId]) {
+    return res.redirect('/login');
+  }
+
   const templateVars = { user: users[req.session.userId], urls: urlDatabase };
   res.render("urls_new", templateVars);
 });
