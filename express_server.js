@@ -17,6 +17,11 @@ app.use(cookieSession({
 // Password hash
 const salt = bcrypt.genSaltSync(10);
 
+// Databases
+const urlDatabase = {};
+
+const users = {};
+
 // Homepage
 app.get("/", (req, res) => {
   res.redirect("/urls");
@@ -27,7 +32,7 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id].longURL;
 
   if (!longURL) {
-    return res.status(404).send('URL not found.')
+    return res.status(404).send('URL not found.');
   }
   
   res.redirect(longURL);
@@ -35,11 +40,11 @@ app.get("/u/:id", (req, res) => {
 
 // Register page
 app.get('/register', (req, res) => {
-  const templateVars = { user: users[req.session.user_id]};
+  const templateVars = { user: users[req.session.userId]};
 
-  // Returns to /urls page if logged in 
-  if (users[req.session.user_id]) {
-    return res.redirect('/urls')
+  // Returns to /urls page if logged in
+  if (users[req.session.userId]) {
+    return res.redirect('/urls');
   }
 
   res.render("urls_register", templateVars);
@@ -64,15 +69,15 @@ app.post('/register', (req, res) => {
     email: enteredEmail,
     password: bcrypt.hashSync(enteredPassword, salt)
   };
-  req.session.user_id = randomID;
+  req.session.userId = randomID;
   res.redirect('/');
 });
 
 // Login
 app.get('/login', (req, res) => {
-  const templateVars = { user: users[req.session.user_id]};
+  const templateVars = { user: users[req.session.userId]};
 
-  if (!users[req.session.user_id]) {
+  if (!users[req.session.userId]) {
     return res.render('urls_login', templateVars);
   }
 
@@ -92,7 +97,7 @@ app.post('/login', (req, res) => {
     return res.status(403).send("Password is incorrect.");
   }
 
-  req.session.user_id = user;
+  req.session.userId = user;
   res.redirect('urls');
 });
 
@@ -105,16 +110,16 @@ app.post('/logout', (req, res) => {
 // URLs
 app.get("/urls", (req, res) => {
   let templateVars = {};
-  if (!users[req.session.user_id]) {
-    templateVars = { 
-      user: users[req.session.user_id],
-      urls: urlsForUser(users[req.session.user_id], urlDatabase) 
+  if (!users[req.session.userId]) {
+    templateVars = {
+      user: users[req.session.userId],
+      urls: urlsForUser(users[req.session.userId], urlDatabase)
     };
   } else {
-    templateVars = { 
-      user: users[req.session.user_id],
-      urls: urlsForUser(users[req.session.user_id].id, urlDatabase) 
-    }
+    templateVars = {
+      user: users[req.session.userId],
+      urls: urlsForUser(users[req.session.userId].id, urlDatabase)
+    };
   }
   res.render("urls_index", templateVars);
 });
@@ -122,33 +127,33 @@ app.get("/urls", (req, res) => {
 app.post('/urls', (req, res) => {
   const tinyUrl = generateRandomString();
   
-  if (!users[req.session.user_id]) {
-    return res.status(403).send("Please log in to use this feature")
+  if (!users[req.session.userId]) {
+    return res.status(403).send("Please log in to use this feature");
   }
 
   urlDatabase[tinyUrl] = {
     longURL:req.body.longURL,
-    userID: users[req.session.user_id].id
+    userID: users[req.session.userId].id
   };
   res.redirect('urls/' + tinyUrl);
 });
 
 // Add URL
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: users[req.session.user_id], urls: urlDatabase };
+  const templateVars = { user: users[req.session.userId], urls: urlDatabase };
   res.render("urls_new", templateVars);
 });
 
 //
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { user: users[req.session.user_id], id: req.params.id, longURL: urlDatabase[req.params.id].longURL };
+  const templateVars = { user: users[req.session.userId], id: req.params.id, longURL: urlDatabase[req.params.id].longURL };
   res.render("urls_show", templateVars);
 });
 
 // Delete URL
 app.post('/urls/:id/delete', (req, res) => {
-  if (!users[req.session.user_id]) {
-    return res.status(403).send("Please log in to use this feature")
+  if (!users[req.session.userId]) {
+    return res.status(403).send("Please log in to use this feature");
   }
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
@@ -156,13 +161,13 @@ app.post('/urls/:id/delete', (req, res) => {
 
 // Edit URL
 app.post('/urls/:id/edit', (req, res) => {
-  if (users[req.session.user_id] === undefined) {
-    return res.status(403).send("Please log in to use this feature")
+  if (users[req.session.userId] === undefined) {
+    return res.status(403).send("Please log in to use this feature");
   }
   
   urlDatabase[req.params.id] = {
     longURL: req.body.newURL,
-    userID: users[req.session.user_id].id
+    userID: users[req.session.userId].id
   };
   res.redirect('/urls');
 });
@@ -174,4 +179,4 @@ app.get("/urls.json", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
-}); 
+});
