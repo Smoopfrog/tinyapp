@@ -23,6 +23,7 @@ const getUserIdFromEmail = function(email, database) {
       return database[user].id;
     }
   }
+  return undefined;
 };
 
 const urlsForUser = (id, database) => {

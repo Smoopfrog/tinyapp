@@ -17,31 +17,6 @@ app.use(cookieSession({
 // Password hash
 const salt = bcrypt.genSaltSync(10);
 
-// Sample Databases
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "userRandomID",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "userRandomID",
-  },
-};
-
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "password",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
-
 // Homepage
 app.get("/", (req, res) => {
   res.redirect("/urls");
@@ -199,4 +174,4 @@ app.get("/urls.json", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
-});
+}); 
